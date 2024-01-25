@@ -5,8 +5,9 @@
 /* === SETUP === */
 #define ROW_COUNT 3
 #define COLUMN_COUNT 8
-#define NUM_LEDS ROW_COUNT * COLUMN_COUNT
+#define NUM_LEDS ROW_COUNT *COLUMN_COUNT
 #define DATA_PIN 2
+#define SLEEP_TIMER_DELAY (1000 * 1)  // in millis
 
 /* === SETTINGS === */
 // color temperature
@@ -61,6 +62,7 @@ enum INTERACTIVE_MODE {
 
 /* Timer vars */
 unsigned long int prev_millis_time = 0;
+unsigned long int prev_sleep_timer = 0;
 
 
 /* Flickering */
@@ -81,94 +83,104 @@ void loop() {
   btn.tick();
 
   flickering_brightness();
+  flickering_color_temperature();
 
-  if (btn.step(3)) {
-    Serial.println("holdFor(2)");
-  }
-
-/*
-  if (btn.hasClicks(1)) {
-    color_blink(0, NUM_LEDS, Colors[1], 200, 0, 1);
-    Serial.println("btn clicks 1");
-    switch (mode) {
-      case DAY:
-        set_color_temperature(ColorTemperatures[COLOR_TEMPERATURE_COUNT]);
-        mode = NIGHT;
-        Serial.println("set mode DAY");
-        break;
-      case NIGHT:
-        set_color_temperature(ColorTemperatures[0]);
-        mode = DAY;
-        Serial.println("set mode NIGHT");
-        break;
-      case BRIGHTNESS_NEXT:
-        Serial.println("set BRIGHTNESS_PREV");
-        mode = BRIGHTNESS_PREV;
-        break;
-      case BRIGHTNESS_PREV:
-        Serial.println("set BRIGHTNESS_UP");
-        mode = BRIGHTNESS_NEXT;
-        break;
-      case COLOR_TEMPERATURE_UP:
-        Serial.println("set COLOR_TEMPERATURE_DOWN");
-        mode = COLOR_TEMPERATURE_DOWN;
-        break;
-      case COLOR_TEMPERATURE_DOWN:
-        Serial.println("set COLOR_TEMPERATURE_UP");
-        mode = COLOR_TEMPERATURE_UP;
-        break;
-      default:
-        break;
-    }
-  } 
-  if (btn.hasClicks(2)) {
-    color_blink(0, NUM_LEDS, Colors[2], 200, 100, 2);
-    if (mode == DAY) {
+  if (mode == SLEEP_TIMER) {
+    // wake up mode from sleep only
+    if (btn.click()) {
+      Serial.println("exit SLEEP_TIMER");
       mode = NIGHT;
-      Serial.println("set mode NIGHT");
-    } else {
-      mode = DAY;
-      Serial.println("set mode DAY");
     }
-  } 
-  if (btn.hasClicks(3)) {
-    color_blink(0, NUM_LEDS, Colors[3], 200, 100, 3);
-    mode = BRIGHTNESS_PREV;
-    Serial.println("set mode BRIGHTNESS_PREV");
-  }
-  if (btn.holdFor(200)) {
-    switch (mode) {
-      case BRIGHTNESS_NEXT:
-        Serial.println("hold BRIGHTNESS_UP");
-        brightness_up();
-        break;
-      case BRIGHTNESS_PREV:
-        Serial.println("hold BRIGHTNESS_DOWN");
-        brightness_down();
-        break;
-      // case DAY:
-      //   Serial.println("hold color_temperature_next");
-      //   color_temperature_next();
-      //   break;
-      // case NIGHT:
-      //   Serial.println("hold color_temperature_prev");
-      //   color_temperature_prev();
-      //   break;
-      case COLOR_TEMPERATURE_UP:
-        Serial.println("hold COLOR_TEMPERATURE_UP");
-        color_temperature_next();
-        break;
-      case COLOR_TEMPERATURE_DOWN:
-        Serial.println("hold COLOR_TEMPERATURE_DOWN");
-        color_temperature_prev();
-        break;
-      default:
-        break;
+  } else {
+    if (btn.hasClicks(1)) {
+      color_blink(0, NUM_LEDS, Colors[1], 200, 0, 1);
+      Serial.println("btn clicks 1");
+      switch (mode) {
+        case DAY:
+          set_color_temperature(ColorTemperatures[COLOR_TEMPERATURE_COUNT]);
+          mode = NIGHT;
+          Serial.println("set mode DAY");
+          break;
+        case NIGHT:
+          set_color_temperature(ColorTemperatures[0]);
+          mode = DAY;
+          Serial.println("set mode NIGHT");
+          break;
+        case BRIGHTNESS_NEXT:
+          Serial.println("set BRIGHTNESS_PREV");
+          mode = BRIGHTNESS_PREV;
+          break;
+        case BRIGHTNESS_PREV:
+          Serial.println("set BRIGHTNESS_UP");
+          mode = BRIGHTNESS_NEXT;
+          break;
+        case COLOR_TEMPERATURE_UP:
+          Serial.println("set COLOR_TEMPERATURE_DOWN");
+          mode = COLOR_TEMPERATURE_DOWN;
+          break;
+        case COLOR_TEMPERATURE_DOWN:
+          Serial.println("set COLOR_TEMPERATURE_UP");
+          mode = COLOR_TEMPERATURE_UP;
+          break;
+        default:
+          break;
+      }
     }
-    delay(100);
+    if (btn.hasClicks(2)) {
+      color_blink(0, NUM_LEDS, Colors[2], 200, 100, 2);
+      if (mode == DAY) {
+        mode = NIGHT;
+        Serial.println("set mode NIGHT");
+      } else {
+        mode = DAY;
+        Serial.println("set mode DAY");
+      }
+    }
+    if (btn.hasClicks(3)) {
+      color_blink(0, NUM_LEDS, Colors[3], 200, 100, 3);
+      mode = BRIGHTNESS_PREV;
+      Serial.println("set mode BRIGHTNESS_PREV");
+    }
+    if (btn.hasClicks(4)) {
+      color_blink(0, NUM_LEDS, Colors[3], 200, 100, 4);
+      mode = SLEEP_TIMER;
+      Serial.println("set mode SLEEP_TIMER");
+      prev_sleep_timer = millis();
+    }
+    if (btn.holdFor(200)) {
+      switch (mode) {
+        case BRIGHTNESS_NEXT:
+          Serial.println("hold BRIGHTNESS_UP");
+          brightness_up();
+          break;
+        case BRIGHTNESS_PREV:
+          Serial.println("hold BRIGHTNESS_DOWN");
+          brightness_down();
+          break;
+        case DAY:
+          Serial.println("hold color_temperature_next");
+          color_temperature_next();
+          break;
+        case NIGHT:
+          Serial.println("hold color_temperature_prev");
+          color_temperature_prev();
+          break;
+        case COLOR_TEMPERATURE_UP:
+          Serial.println("hold COLOR_TEMPERATURE_UP");
+          color_temperature_next();
+          break;
+        case COLOR_TEMPERATURE_DOWN:
+          Serial.println("hold COLOR_TEMPERATURE_DOWN");
+          color_temperature_prev();
+          break;
+        default:
+          break;
+      }
+      delay(100);
+    }
   }
 
- */
+
   FastLED.show();
 }
 
@@ -280,6 +292,7 @@ void flickering_brightness() {
     FastLED.setBrightness(brightness - delta);
   }
 }
+
 void flickering_color_temperature() {
   if (millis() - prev_millis_time >= FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD / FLICKERING_COLOR_TEMPERATURE_STEPS) {
     prev_millis_time = millis();
@@ -300,5 +313,10 @@ void flickering_color_temperature() {
       delta += FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
     }
     set_color_temperature(ColorTemperatures[current_temperature - delta]);
+  }
+}
+
+void sleep_timer() {
+  if (millis() - prev_sleep_timer >= SLEEP_TIMER_DELAY) {
   }
 }
