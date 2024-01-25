@@ -13,8 +13,11 @@
 #define COLOR_STEP 1
 #define STARTUP_COLOR_TEMPERATURE 30  // less = warmer
 
-#define FLICKERING_PERIOD 3000
-#define FLICKERING_BRIGHTNESS_DELTA 50
+// flickering brightness
+#define FLICKERING_BRIGHTNESS_HALF_PERIOD 5000  // in milliseconds
+#define FLICKERING_BRIGHTNESS_MAX_DELTA 180
+#define FLICKERING_BRIGHTNESS_STEPS FLICKERING_BRIGHTNESS_MAX_DELTA
+#define FLICKERING_BRIGHTNESS_DELTA_STEP ((FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) ? (FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) : 1)
 
 // brightness
 #define BRIGHTNESS_SMALL_STEP 10
@@ -54,6 +57,10 @@ enum INTERACTIVE_MODE {
 unsigned long int prev_millis_time = 0;
 
 
+/* Flickering */
+uint8_t delta = 0;
+bool delta_flag = 0;
+
 void setup() {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
   FastLED.setBrightness(brightness);
@@ -67,7 +74,7 @@ void setup() {
 void loop() {
   btn.tick();
 
-  FastLED.setBrightness(5);
+  flickering_brightness();
 
   if (btn.step(3)) {
     Serial.println("holdFor(2)");
@@ -245,3 +252,45 @@ void blink(uint8_t num_leds_start, uint8_t num_leds_end, uint8_t delay_color, ui
   color_blink(num_leds_start, num_leds_end, ColorTemperatures[current_temperature], delay_color, delay_dim, repeat);
 }
 
+void flickering_brightness() {
+  if (millis() - prev_millis_time >= FLICKERING_BRIGHTNESS_HALF_PERIOD / FLICKERING_BRIGHTNESS_STEPS) {
+    prev_millis_time = millis();
+    // Serial.print("delta: ");
+    // Serial.println(delta);
+    if (delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
+      Serial.print("timer: ");
+      Serial.println(millis());
+      delta_flag = 1;
+    } else if (delta == 0) {
+      Serial.print("timer: ");
+      Serial.println(millis());
+      delta_flag = 0;
+    }
+    if (delta_flag) {
+      delta -= FLICKERING_BRIGHTNESS_DELTA_STEP;
+    } else {
+      delta += FLICKERING_BRIGHTNESS_DELTA_STEP;
+    }
+    FastLED.setBrightness(brightness - delta);
+  }
+}
+    prev_millis_time = millis();
+    // Serial.print("delta: ");
+    // Serial.println(delta);
+    if (delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
+      Serial.print("timer: ");
+      Serial.println(millis());
+      delta_flag = 1;
+    } else if (delta == 0) {
+      Serial.print("timer: ");
+      Serial.println(millis());
+      delta_flag = 0;
+    }
+    if (delta_flag) {
+      delta -= FLICKERING_BRIGHTNESS_DELTA_STEP;
+    } else {
+      delta += FLICKERING_BRIGHTNESS_DELTA_STEP;
+    }
+    FastLED.setBrightness(brightness - delta);
+  }
+}
