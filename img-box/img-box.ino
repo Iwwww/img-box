@@ -61,7 +61,8 @@ enum INTERACTIVE_MODE {
 } interactive_mode = NONE;
 
 /* Timer vars */
-unsigned long int prev_millis_time = 0;
+unsigned long int prev_millis_flickering_brightness_time = 0;
+unsigned long int prev_millis_flickering_color_temperature_time = 0;
 unsigned long int prev_sleep_timer = 0;
 
 
@@ -271,8 +272,8 @@ void blink(uint8_t num_leds_start, uint8_t num_leds_end, uint8_t delay_color, ui
 }
 
 void flickering_brightness() {
-  if (millis() - prev_millis_time >= FLICKERING_BRIGHTNESS_HALF_PERIOD / FLICKERING_BRIGHTNESS_STEPS) {
-    prev_millis_time = millis();
+  if (millis() - prev_millis_flickering_brightness_time >= FLICKERING_BRIGHTNESS_HALF_PERIOD / FLICKERING_BRIGHTNESS_STEPS) {
+    prev_millis_flickering_brightness_time = millis();
     // Serial.print("delta: ");
     // Serial.println(delta);
     if (delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
@@ -294,8 +295,8 @@ void flickering_brightness() {
 }
 
 void flickering_color_temperature() {
-  if (millis() - prev_millis_time >= FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD / FLICKERING_COLOR_TEMPERATURE_STEPS) {
-    prev_millis_time = millis();
+  if (millis() - prev_millis_flickering_color_temperature_time >= FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD / FLICKERING_COLOR_TEMPERATURE_STEPS) {
+    prev_millis_flickering_color_temperature_time = millis();
     Serial.print("delta: ");
     Serial.println(delta);
     if (delta >= FLICKERING_COLOR_TEMPERATURE_MAX_DELTA) {
