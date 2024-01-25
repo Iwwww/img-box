@@ -67,7 +67,8 @@ unsigned long int prev_sleep_timer = 0;
 
 
 /* Flickering */
-uint8_t delta = 0;
+uint8_t brightness_delta = 0;
+uint8_t color_temperature_delta = 0;
 bool delta_flag = 0;
 
 void setup() {
@@ -276,21 +277,21 @@ void flickering_brightness() {
     prev_millis_flickering_brightness_time = millis();
     // Serial.print("delta: ");
     // Serial.println(delta);
-    if (delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
+    if (brightness_delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
       Serial.print("timer: ");
       Serial.println(millis());
       delta_flag = 1;
-    } else if (delta == 0) {
+    } else if (brightness_delta == 0) {
       Serial.print("timer: ");
       Serial.println(millis());
       delta_flag = 0;
     }
     if (delta_flag) {
-      delta -= FLICKERING_BRIGHTNESS_DELTA_STEP;
+      brightness_delta -= FLICKERING_BRIGHTNESS_DELTA_STEP;
     } else {
-      delta += FLICKERING_BRIGHTNESS_DELTA_STEP;
+      brightness_delta += FLICKERING_BRIGHTNESS_DELTA_STEP;
     }
-    FastLED.setBrightness(brightness - delta);
+    FastLED.setBrightness(brightness - brightness_delta);
   }
 }
 
@@ -298,22 +299,22 @@ void flickering_color_temperature() {
   if (millis() - prev_millis_flickering_color_temperature_time >= FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD / FLICKERING_COLOR_TEMPERATURE_STEPS) {
     prev_millis_flickering_color_temperature_time = millis();
     Serial.print("delta: ");
-    Serial.println(delta);
-    if (delta >= FLICKERING_COLOR_TEMPERATURE_MAX_DELTA) {
+    Serial.println(color_temperature_delta);
+    if (color_temperature_delta >= FLICKERING_COLOR_TEMPERATURE_MAX_DELTA) {
       Serial.print("timer: ");
       Serial.println(millis());
       delta_flag = 1;
-    } else if (delta == 0) {
+    } else if (color_temperature_delta == 0) {
       Serial.print("timer: ");
       Serial.println(millis());
       delta_flag = 0;
     }
     if (delta_flag) {
-      delta -= FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
+      color_temperature_delta -= FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
     } else {
-      delta += FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
+      color_temperature_delta += FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
     }
-    set_color_temperature(ColorTemperatures[current_temperature - delta]);
+    set_color_temperature(ColorTemperatures[current_temperature - color_temperature_delta]);
   }
 }
 
