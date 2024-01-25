@@ -7,7 +7,8 @@
 #define COLUMN_COUNT 8
 #define NUM_LEDS ROW_COUNT *COLUMN_COUNT
 #define DATA_PIN 2
-#define SLEEP_TIMER_DELAY (1000 * 1)  // in millis
+#define SLEEP_TIMER_DELAY (1000 * 60 20)         // in millis
+#define SLEEP_TIMER_DIM_DURATION (1000 * 60 5)  // in millis
 
 /* === SETTINGS === */
 // color temperature
@@ -20,7 +21,7 @@
 #define FLICKERING_BRIGHTNESS_STEPS FLICKERING_BRIGHTNESS_MAX_DELTA
 #define FLICKERING_BRIGHTNESS_DELTA_STEP ((FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) ? (FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) : 1)
 
-// Flickering color temperature
+// flickering color temperature
 #define FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD 1000 * 60  // in millis
 #define FLICKERING_COLOR_TEMPERATURE_MAX_DELTA 15
 #define FLICKERING_COLOR_TEMPERATURE_STEPS FLICKERING_COLOR_TEMPERATURE_MAX_DELTA
@@ -64,7 +65,10 @@ enum INTERACTIVE_MODE {
 unsigned long int prev_millis_flickering_brightness_time = 0;
 unsigned long int prev_millis_flickering_color_temperature_time = 0;
 unsigned long int prev_sleep_timer = 0;
+unsigned long int prev_sleep_dim_timer = 0;
 
+/* Sleep timer */
+uint8_t brightness_before_sleep_mode = INITIAL_BRIGHTNESS;
 
 /* Flickering */
 uint8_t brightness_delta = 0;
@@ -88,10 +92,13 @@ void loop() {
   flickering_color_temperature();
 
   if (mode == SLEEP_TIMER) {
+    sleep_timer();
     // wake up mode from sleep only
     if (btn.click()) {
       Serial.println("exit SLEEP_TIMER");
       mode = NIGHT;
+      brightness = brightness_before_sleep_mode;
+      FastLED.setBrightness(brightness);
     }
   } else {
     if (btn.hasClicks(1)) {
@@ -148,6 +155,7 @@ void loop() {
       mode = SLEEP_TIMER;
       Serial.println("set mode SLEEP_TIMER");
       prev_sleep_timer = millis();
+      brightness_before_sleep_mode = brightness;
     }
     if (btn.holdFor(200)) {
       switch (mode) {
@@ -320,5 +328,14 @@ void flickering_color_temperature() {
 
 void sleep_timer() {
   if (millis() - prev_sleep_timer >= SLEEP_TIMER_DELAY) {
+    if (millis() - prev_sleep_dim_timer >= SLEEP_TIMER_DIM_DURATION / brightness_before_sleep_mode) {
+      prev_sleep_dim_timer = millis();
+      Serial.print("SLEEP_TIMER: brightness: ");
+      Serial.println(brightness);
+      if (brightness > 0) {
+        brightness--;
+        FastLED.setBrightness(brightness);
+      }
+    }
   }
 }
