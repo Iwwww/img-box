@@ -14,10 +14,16 @@
 #define STARTUP_COLOR_TEMPERATURE 30  // less = warmer
 
 // flickering brightness
-#define FLICKERING_BRIGHTNESS_HALF_PERIOD 5000  // in milliseconds
+#define FLICKERING_BRIGHTNESS_HALF_PERIOD 5000  // in millis
 #define FLICKERING_BRIGHTNESS_MAX_DELTA 180
 #define FLICKERING_BRIGHTNESS_STEPS FLICKERING_BRIGHTNESS_MAX_DELTA
 #define FLICKERING_BRIGHTNESS_DELTA_STEP ((FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) ? (FLICKERING_BRIGHTNESS_MAX_DELTA / FLICKERING_BRIGHTNESS_STEPS) : 1)
+
+// Flickering color temperature
+#define FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD 1000 * 60  // in millis
+#define FLICKERING_COLOR_TEMPERATURE_MAX_DELTA 15
+#define FLICKERING_COLOR_TEMPERATURE_STEPS FLICKERING_COLOR_TEMPERATURE_MAX_DELTA
+#define FLICKERING_COLOR_TEMPERATURE_DELTA_STEP ((FLICKERING_COLOR_TEMPERATURE_MAX_DELTA / FLICKERING_COLOR_TEMPERATURE_STEPS) ? (FLICKERING_COLOR_TEMPERATURE_MAX_DELTA / FLICKERING_COLOR_TEMPERATURE_STEPS) : 1)
 
 // brightness
 #define BRIGHTNESS_SMALL_STEP 10
@@ -49,7 +55,7 @@ enum MODE {
 enum INTERACTIVE_MODE {
   NONE,
   FLICKERING,
-  // COLOR_TEMPERATURE_FLICKERING,
+  COLOR_TEMPERATURE_FLICKERING,
   // BRIGHTNESS_GRADIENT
 } interactive_mode = NONE;
 
@@ -274,10 +280,12 @@ void flickering_brightness() {
     FastLED.setBrightness(brightness - delta);
   }
 }
+void flickering_color_temperature() {
+  if (millis() - prev_millis_time >= FLICKERING_COLOR_TEMPERATURE_HALF_PERIOD / FLICKERING_COLOR_TEMPERATURE_STEPS) {
     prev_millis_time = millis();
-    // Serial.print("delta: ");
-    // Serial.println(delta);
-    if (delta >= FLICKERING_BRIGHTNESS_MAX_DELTA) {
+    Serial.print("delta: ");
+    Serial.println(delta);
+    if (delta >= FLICKERING_COLOR_TEMPERATURE_MAX_DELTA) {
       Serial.print("timer: ");
       Serial.println(millis());
       delta_flag = 1;
@@ -287,10 +295,10 @@ void flickering_brightness() {
       delta_flag = 0;
     }
     if (delta_flag) {
-      delta -= FLICKERING_BRIGHTNESS_DELTA_STEP;
+      delta -= FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
     } else {
-      delta += FLICKERING_BRIGHTNESS_DELTA_STEP;
+      delta += FLICKERING_COLOR_TEMPERATURE_DELTA_STEP;
     }
-    FastLED.setBrightness(brightness - delta);
+    set_color_temperature(ColorTemperatures[current_temperature - delta]);
   }
 }
