@@ -10,11 +10,11 @@ A box with luminous images of different brightness levels.
 - If the light is not in **Sleep Timer** mode, pressing the button:
   - In **Day** mode, it switches to **Night** mode, and vice versa.
   - In **Night** mode, it switches to **Day** mode, and vice versa.
-  - In brightness and color temperature control modes, it toggles between available settings.
+  - In **brightness** and **color temperature** control modes, it toggles between available settings.
 - Double-clicking the button toggles between **Day** and **Night** modes.
-- Triple-clicking the button reduces brightness or color temperature.
+- Triple-clicking the button reduces **brightness** or **color temperature**.
 - Quadruple-clicking the button sets the light to **Sleep Timer** mode and saves the current brightness.
-- Holding the button causes changes in brightness or color temperature depending on the mode.
+- Holding the button causes changes in **brightness** or **color temperature** depending on the mode.
 
 ## Setup
 
