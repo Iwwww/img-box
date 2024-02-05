@@ -7,7 +7,8 @@
 #define COLUMN_COUNT 8
 #define NUM_LEDS ROW_COUNT *COLUMN_COUNT
 #define DATA_PIN 2
-#define SLEEP_TIMER_DELAY (1000 * 60 20)         // in millis
+#define BUTTON_PIN 3
+#define SLEEP_TIMER_DELAY (1000 * 60 20)        // in millis
 #define SLEEP_TIMER_DIM_DURATION (1000 * 60 5)  // in millis
 
 /* === SETTINGS === */
@@ -33,8 +34,8 @@
 #define MAX_BRIGHTNESS 255
 #define MIN_BRIGHTNESS 2
 
-// Buttons init
-Button btn(3);
+// Button init
+Button btn(BUTTON_PIN);
 
 int brightness_step = BRIGHTNESS_SMALL_STEP;
 int brightness = INITIAL_BRIGHTNESS;
