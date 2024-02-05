@@ -2,6 +2,8 @@
 
 A box with luminous images of different brightness levels.
 
+<img src="preview/collage.jpg" alt="collage preview" height="250">
+
 ## Button control
 
 - If the light is in **Sleep Timer** mode, pressing the button exits this mode and switches to **Night** mode, restoring the previous brightness.
